@@ -1,45 +1,55 @@
+use colored::*;
 use command::Command;
+use string_ext::*;
 
 pub struct CommandChain {
     steps: Vec<Box<Step>>,
 }
 
 impl CommandChain {
-    pub fn new() -> Self {
+    pub fn new() -> CommandChain {
         CommandChain { steps: vec![] }
     }
 
-    pub fn add<S>(mut self, step: S) -> Self
+    pub fn add<S>(&mut self, step: S)
     where
         S: 'static + Step,
     {
         self.steps.push(Box::new(step));
-        self
     }
 
-    pub fn run(&self) {
-        self.run_from_step(1);
-    }
-
-    pub fn run_from_step(&self, idx: usize) {
-        let idx = idx - 1;
-
+    pub fn run_and_print_from_step(&self, idx: usize, rerun_command: &str, runner: &StepRunner) {
         for (step, cmd) in self.steps.iter().enumerate() {
             if step < idx {
                 continue;
             }
 
-            println!("-- Running step {}: {}", step, cmd.as_string());
-            match cmd.run_step() {
-                RunResult::Ok(output) => {
+            println!(
+                "{}",
+                format!(
+                    "-- Running step {}: {}",
+                    step.to_string().green(),
+                    cmd.as_string(),
+                ).green(),
+            );
+            match runner.run_step(cmd) {
+                RunStepResult::Ok(output) => {
                     println!("{}", output);
                 }
-                RunResult::Err(output) => {
+                RunStepResult::Err(output) => {
                     println!(
-                        "Step {} failed. Fix the problem and rerun from step {}",
-                        step, step
+                        "{}",
+                        format!("Step {} failed. Fix the problem and rerun with:", step).red(),
                     );
-                    println!("Stderr of failed command:");
+                    println!("");
+                    let path_to_self = "api-git";
+                    println!(
+                        "{}",
+                        format!("{} {} --from-step {}", path_to_self, rerun_command, step)
+                            .indent(2),
+                    );
+                    println!("");
+                    println!("{}", format!("Stderr of failed command:").red());
                     println!("");
                     println!("{}", output.indent(2));
                     break;
@@ -51,7 +61,7 @@ impl CommandChain {
 }
 
 pub trait Step {
-    fn run_step(&self) -> RunResult;
+    fn run_step(&self) -> RunStepResult;
 
     fn as_string(&self) -> String;
 }
@@ -60,13 +70,13 @@ impl<T> Step for T
 where
     T: Command,
 {
-    fn run_step(&self) -> RunResult {
+    fn run_step(&self) -> RunStepResult {
         let output = self.execute();
 
         if output.status.success() {
-            RunResult::Ok(output.stdout)
+            RunStepResult::Ok(output.stdout)
         } else {
-            RunResult::Err(output.stderr)
+            RunStepResult::Err(output.stderr)
         }
     }
 
@@ -75,25 +85,26 @@ where
     }
 }
 
-pub enum RunResult {
+pub enum RunStepResult {
     Ok(String),
     Err(String),
 }
 
-trait Indent {
-    fn indent(&self, n: u32) -> Self;
+#[allow(dead_code)]
+pub enum StepRunner {
+    Dry,
+    Run,
 }
 
-impl Indent for String {
-    fn indent(&self, n: u32) -> Self {
-        let mut indent = String::new();
-        for _ in 0..n {
-            indent.push_str(" ");
+impl StepRunner {
+    fn run_step(&self, step: &Box<Step>) -> RunStepResult {
+        match self {
+            StepRunner::Dry => {
+                println!("Dry run:");
+                println!("{}", step.as_string().indent(2));
+                RunStepResult::Ok(String::new())
+            }
+            StepRunner::Run => step.run_step(),
         }
-
-        self.lines()
-            .map(|line| format!("{}{}", indent, line))
-            .collect::<Vec<_>>()
-            .join("\n")
     }
 }

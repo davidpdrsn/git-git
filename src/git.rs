@@ -1,5 +1,4 @@
 use command::Command;
-use command_chain::{RunResult, Step};
 
 #[derive(Debug)]
 pub struct Git {
@@ -7,6 +6,7 @@ pub struct Git {
     args: Vec<String>,
 }
 
+#[allow(dead_code)]
 impl Git {
     pub fn status() -> Self {
         Git::from("status")
@@ -16,8 +16,52 @@ impl Git {
         Git::from("log")
     }
 
-    pub fn branch() -> Self {
-        Git::from("branch")
+    pub fn branch(branch: &str) -> Self {
+        Git::from(format!("branch {}", branch))
+    }
+
+    pub fn pull() -> Self {
+        Git::from("pull")
+    }
+
+    pub fn push() -> Self {
+        Git::from("push")
+    }
+
+    pub fn push_and_set_upstream(branch: &str) -> Self {
+        Git::from(format!("push --set-upstream origin {}", branch))
+    }
+
+    pub fn force_push() -> Self {
+        Git::from("push -f")
+    }
+
+    pub fn rebase(branch: &str) -> Self {
+        Git::from(format!("rebase {}", branch))
+    }
+
+    pub fn checkout(branch: &str) -> Self {
+        Git::from(format!("checkout {}", branch))
+    }
+
+    pub fn merge(branch: &str) -> Self {
+        Git::from(format!("merge --no-edit {}", branch))
+    }
+
+    pub fn fast_forward_merge(branch: &str) -> Self {
+        Git::from(format!("merge --ff-only {}", branch))
+    }
+
+    pub fn delete_branch(branch: &str) -> Self {
+        Git::from(format!("branch -D {}", branch))
+    }
+
+    pub fn delete_remote_branch(branch: &str) -> Self {
+        Git::from(format!("push origin :{}", branch))
+    }
+
+    pub fn prune_remote() -> Self {
+        Git::from("fetch origin --prune")
     }
 }
 
@@ -39,5 +83,11 @@ impl<'a> From<&'a str> for Git {
             command: String::from("git"),
             args,
         }
+    }
+}
+
+impl From<String> for Git {
+    fn from(s: String) -> Git {
+        Git::from(s.as_ref())
     }
 }
