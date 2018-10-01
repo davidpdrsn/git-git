@@ -51,6 +51,7 @@ fn main() {
                 ).arg(
                     Arg::with_name("prefix")
                         .long("prefix")
+                        .short("x")
                         .help("Prefix the new branch with the name of the base branch. Useful for sprint feature branches that goes into release branches"),
                 ),
         ).subcommand(
