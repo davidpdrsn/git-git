@@ -27,7 +27,7 @@ fn main() {
         .help("Start the command from the given step. Used when a previous command failed and needs to be resumed");
 
     let mut app = App::new("api-git")
-        .version("0.1")
+        .version(env!("CARGO_PKG_VERSION"))
         .author("David Pedersen <david.pdrsn@gmail.com>")
         .about("Handles common API git operations")
         .subcommand(
