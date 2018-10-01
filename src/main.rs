@@ -7,7 +7,7 @@ mod command;
 mod string_ext;
 
 mod commands;
-use commands::{merge::*, start::*};
+use commands::{merge::*, ship_hotfix::*, start::*};
 
 use clap::{App, Arg, SubCommand};
 
@@ -71,7 +71,12 @@ fn main() {
                         .long("no-rebase")
                         .help("Just merge directly without rebasing first"),
                 )
-        );
+        ).subcommand(
+            SubCommand::with_name("ship-hotfix")
+                .about("Merge master into staging and develop and deploy")
+                .arg(&dry_run)
+                .arg(&from_step)
+            );
 
     let matches = app.clone().get_matches();
 
@@ -79,6 +84,8 @@ fn main() {
         run_start(matches);
     } else if let Some(matches) = matches.subcommand_matches("merge") {
         run_merge(matches);
+    } else if let Some(matches) = matches.subcommand_matches("ship-hotfix") {
+        run_ship_hotfix(matches);
     } else {
         app.print_help().expect("failed to print help");
         print!("\n");

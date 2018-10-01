@@ -2,21 +2,24 @@ use clap::ArgMatches;
 use command_chain::*;
 use commands::*;
 use git::Git;
-use std::process;
 
 pub fn run_start(args: &ArgMatches) {
-    let args = if let Some(args) = StartArgs::from_args(&args) {
-        args
-    } else {
-        println!("Invalid args given to 'start' command");
-        process::exit(1);
-    };
+    StartArgs::parse_args_and_run_command(&args, start_command);
+}
 
-    start_command(&args).run_and_print_from_step(
-        args.from_step,
-        &args.rerun_command(),
-        &args.step_runner(),
-    );
+fn start_command(args: &StartArgs) -> CommandChain {
+    let mut c = CommandChain::new();
+
+    c.add(Git::checkout(&args.base));
+    c.add(Git::pull());
+    c.add(Git::branch(&args.branch));
+    c.add(Git::checkout(&args.branch));
+
+    if args.push {
+        c.add(Git::push_and_set_upstream(&args.branch));
+    }
+
+    c
 }
 
 #[derive(Debug)]
@@ -76,6 +79,10 @@ impl CommandArgs for StartArgs {
         self.dry_run
     }
 
+    fn from_step(&self) -> usize {
+        self.from_step
+    }
+
     fn rerun_command(&self) -> String {
         let mut rerun_command = String::new();
         rerun_command.push_str("start");
@@ -92,20 +99,4 @@ impl CommandArgs for StartArgs {
         rerun_command.push_str(&format!(" {}", self.branch));
         rerun_command
     }
-}
-
-#[allow(dead_code)]
-fn start_command(args: &StartArgs) -> CommandChain {
-    let mut c = CommandChain::new();
-
-    c.add(Git::checkout(&args.base));
-    c.add(Git::pull());
-    c.add(Git::branch(&args.branch));
-    c.add(Git::checkout(&args.branch));
-
-    if args.push {
-        c.add(Git::push_and_set_upstream(&args.branch));
-    }
-
-    c
 }

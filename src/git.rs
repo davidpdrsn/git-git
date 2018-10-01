@@ -24,6 +24,10 @@ impl Git {
         Git::from("pull")
     }
 
+    pub fn pull_rebase() -> Self {
+        Git::from("pull --rebase")
+    }
+
     pub fn push() -> Self {
         Git::from("push")
     }
