@@ -1,6 +1,6 @@
 [package]
-name = "api-git-rs"
-version = "0.2.0"
+name = "api-git"
+version = "0.2.1"
 authors = ["David Pedersen <david.pdrsn@gmail.com>"]
 
 [dependencies]
