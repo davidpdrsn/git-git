@@ -5,7 +5,9 @@ use git::Git;
 use std::string::ToString;
 
 pub fn run_merge(args: &ArgMatches) {
-    MergeArgs::parse_args_and_run_command(&args, merge_command);
+    MergeArgs::from_args(&args)
+        .unwrap()
+        .parse_args_and_run_command(&args, merge_command);
 }
 
 fn merge_command(args: &MergeArgs) -> CommandChain {
@@ -59,7 +61,7 @@ struct MergeArgs {
     branches: Vec<String>,
 }
 
-impl CommandArgs for MergeArgs {
+impl MergeArgs {
     fn from_args(args: &ArgMatches) -> Option<Self> {
         let branches = if let Some(branches) = args.values_of("BRANCH") {
             branches.map(ToString::to_string).collect()
@@ -85,7 +87,9 @@ impl CommandArgs for MergeArgs {
 
         Some(s)
     }
+}
 
+impl CommandArgs for MergeArgs {
     fn rerun_command(&self) -> String {
         let mut rerun_command = String::new();
         rerun_command.push_str("merge");

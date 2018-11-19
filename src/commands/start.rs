@@ -4,7 +4,9 @@ use commands::*;
 use git::Git;
 
 pub fn run_start(args: &ArgMatches) {
-    StartArgs::parse_args_and_run_command(&args, start_command);
+    StartArgs::from_args(&args)
+        .unwrap()
+        .parse_args_and_run_command(&args, start_command);
 }
 
 fn start_command(args: &StartArgs) -> CommandChain {
@@ -30,7 +32,7 @@ struct StartArgs {
     base: String,
 }
 
-impl CommandArgs for StartArgs {
+impl StartArgs {
     fn from_args(args: &ArgMatches) -> Option<Self> {
         let branch = if let Some(branch) = args.value_of("BRANCH") {
             branch.into()
@@ -62,7 +64,9 @@ impl CommandArgs for StartArgs {
 
         Some(s)
     }
+}
 
+impl CommandArgs for StartArgs {
     fn rerun_command(&self) -> String {
         let mut rerun_command = String::new();
         rerun_command.push_str("start");

@@ -1,5 +1,5 @@
 pub mod merge;
-pub mod on_staging;
+pub mod on_remote;
 pub mod ship_hotfix;
 pub mod start;
 
@@ -7,23 +7,16 @@ use clap::ArgMatches;
 use command_chain::*;
 use std::process;
 
-pub trait CommandArgs: Sized {
-    fn from_args(args: &ArgMatches) -> Option<Self>;
-
+pub trait CommandArgs
+where
+    Self: Sized,
+{
     fn rerun_command(&self) -> String;
 
-    fn parse_args_and_run_command<F>(args: &ArgMatches, command: F)
+    fn parse_args_and_run_command<F>(&self, args: &ArgMatches, command: F)
     where
         F: Fn(&Self) -> CommandChain,
     {
-        let cmd_args = match Self::from_args(&args) {
-            Some(cmd_args) => cmd_args,
-            _ => {
-                println!("Invalid args given to command");
-                process::exit(1);
-            }
-        };
-
         let from_step: usize = args
             .value_of("from-step")
             .and_then(|step| {
@@ -32,7 +25,7 @@ pub trait CommandArgs: Sized {
             })
             .unwrap_or(0);
 
-        let mut rerun_command = cmd_args.rerun_command();
+        let mut rerun_command = self.rerun_command();
         let dry_run = args.is_present("dry-run");
 
         if dry_run {
@@ -45,6 +38,6 @@ pub trait CommandArgs: Sized {
             StepRunner::Run
         };
 
-        command(&cmd_args).run_and_print_from_step(from_step, &rerun_command, &step_runner);
+        command(&self).run_and_print_from_step(from_step, &rerun_command, &step_runner);
     }
 }

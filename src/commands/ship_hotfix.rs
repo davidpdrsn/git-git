@@ -4,7 +4,9 @@ use commands::*;
 use git::Git;
 
 pub fn run_ship_hotfix(args: &ArgMatches) {
-    ShipHotfixArgs::parse_args_and_run_command(&args, ship_hotfix_command);
+    ShipHotfixArgs::from_args(&args)
+        .unwrap()
+        .parse_args_and_run_command(&args, ship_hotfix_command);
 }
 
 fn ship_hotfix_command(_args: &ShipHotfixArgs) -> CommandChain {
@@ -29,11 +31,13 @@ fn ship_hotfix_command(_args: &ShipHotfixArgs) -> CommandChain {
 #[derive(Debug)]
 struct ShipHotfixArgs;
 
-impl CommandArgs for ShipHotfixArgs {
+impl ShipHotfixArgs {
     fn from_args(_args: &ArgMatches) -> Option<Self> {
         Some(ShipHotfixArgs)
     }
+}
 
+impl CommandArgs for ShipHotfixArgs {
     fn rerun_command(&self) -> String {
         let mut rerun_command = String::new();
         rerun_command.push_str("ship-hotfix");

@@ -7,7 +7,11 @@ mod command;
 mod string_ext;
 
 mod commands;
-use commands::{merge, on_staging, ship_hotfix, start};
+use commands::{
+    merge,
+    on_remote::{self, Remote},
+    ship_hotfix, start,
+};
 
 use clap::{App, Arg, SubCommand};
 
@@ -83,6 +87,12 @@ fn main() {
                 .arg(Arg::with_name("BRANCH").multiple(false).help("The branch that will be merged"))
                 .arg(&dry_run)
                 .arg(&from_step)
+        ).subcommand(
+            SubCommand::with_name("on-develop")
+                .about("Merge branch into develop and deploy to develop")
+                .arg(Arg::with_name("BRANCH").multiple(false).help("The branch that will be merged"))
+                .arg(&dry_run)
+                .arg(&from_step)
             );
 
     let matches = app.clone().get_matches();
@@ -94,7 +104,9 @@ fn main() {
     } else if let Some(matches) = matches.subcommand_matches("ship-hotfix") {
         ship_hotfix::run_ship_hotfix(matches);
     } else if let Some(matches) = matches.subcommand_matches("on-staging") {
-        on_staging::run_on_staging(matches);
+        on_remote::run_on_remote(Remote::Staging, matches);
+    } else if let Some(matches) = matches.subcommand_matches("on-develop") {
+        on_remote::run_on_remote(Remote::Develop, matches);
     } else {
         app.print_help().expect("failed to print help");
         print!("\n");
