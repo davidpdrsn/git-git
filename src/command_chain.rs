@@ -34,10 +34,8 @@ impl CommandChain {
                 .green(),
             );
             match runner.run_step(cmd) {
-                RunStepResult::Ok(output) => {
-                    println!("{}", output);
-                }
-                RunStepResult::Err(output) => {
+                RunStepResult::Ok => {}
+                RunStepResult::Err => {
                     println!(
                         "{}",
                         format!("Step {} failed. Fix the problem and rerun with:", step).red(),
@@ -49,10 +47,6 @@ impl CommandChain {
                         format!("{} {} --from-step {}", path_to_self, rerun_command, step)
                             .indent(2),
                     );
-                    println!("");
-                    println!("{}", format!("Stderr of failed command:").red());
-                    println!("");
-                    println!("{}", output.indent(2));
                     break;
                 }
             }
@@ -75,9 +69,9 @@ where
         let output = self.execute();
 
         if output.status.success() {
-            RunStepResult::Ok(output.stdout)
+            RunStepResult::Ok
         } else {
-            RunStepResult::Err(output.stderr)
+            RunStepResult::Err
         }
     }
 
@@ -87,8 +81,8 @@ where
 }
 
 pub enum RunStepResult {
-    Ok(String),
-    Err(String),
+    Ok,
+    Err,
 }
 
 #[allow(dead_code)]
@@ -103,7 +97,7 @@ impl StepRunner {
             StepRunner::Dry => {
                 println!("Dry run:");
                 println!("{}", step.as_string().indent(2));
-                RunStepResult::Ok(String::new())
+                RunStepResult::Ok
             }
             StepRunner::Run => step.run_step(),
         }

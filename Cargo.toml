@@ -6,3 +6,4 @@ authors = ["David Pedersen <david.pdrsn@gmail.com>"]
 [dependencies]
 colored = "1.6.1"
 clap = "~2.32"
+shells = "0.2.0"

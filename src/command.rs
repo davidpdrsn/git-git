@@ -12,18 +12,12 @@ pub trait Command {
             cmd.arg(arg);
         }
 
-        let output = cmd.output().expect("failed to execute process");
+        let status = cmd.status().expect("failed to execute process");
 
-        Output {
-            stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
-            stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
-            status: output.status,
-        }
+        Output { status }
     }
 }
 
 pub struct Output {
     pub status: process::ExitStatus,
-    pub stdout: String,
-    pub stderr: String,
 }
