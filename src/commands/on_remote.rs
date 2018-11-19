@@ -27,6 +27,8 @@ fn on_remote_command(args: &OnRemote) -> CommandChain {
         Remote::Develop => c.add(Git::push_develop()),
     };
 
+    c.add(Git::checkout(&args.branch));
+
     c
 }
 
