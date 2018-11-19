@@ -27,43 +27,16 @@ fn ship_hotfix_command(_args: &ShipHotfixArgs) -> CommandChain {
 }
 
 #[derive(Debug)]
-struct ShipHotfixArgs {
-    dry_run: bool,
-    from_step: usize,
-}
+struct ShipHotfixArgs;
 
 impl CommandArgs for ShipHotfixArgs {
-    fn from_args(args: &ArgMatches) -> Option<Self> {
-        let mut s = ShipHotfixArgs {
-            dry_run: false,
-            from_step: 0,
-        };
-
-        if args.is_present("dry-run") {
-            s.dry_run = true;
-        }
-
-        args.value_of("from-step")
-            .and_then(|step| step.parse().ok())
-            .map(|step| s.from_step = step);
-
-        Some(s)
-    }
-
-    fn dry_run(&self) -> bool {
-        self.dry_run
-    }
-
-    fn from_step(&self) -> usize {
-        self.from_step
+    fn from_args(_args: &ArgMatches) -> Option<Self> {
+        Some(ShipHotfixArgs)
     }
 
     fn rerun_command(&self) -> String {
         let mut rerun_command = String::new();
         rerun_command.push_str("ship-hotfix");
-        if self.dry_run {
-            rerun_command.push_str(" --dry-run");
-        }
         rerun_command
     }
 }

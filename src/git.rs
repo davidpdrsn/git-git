@@ -32,6 +32,10 @@ impl Git {
         Git::from("push")
     }
 
+    pub fn push_staging() -> Self {
+        Git::from("push staging staging:master")
+    }
+
     pub fn push_and_set_upstream(branch: &str) -> Self {
         Git::from(format!("push --set-upstream origin {}", branch))
     }

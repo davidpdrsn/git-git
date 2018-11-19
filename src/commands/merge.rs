@@ -54,9 +54,7 @@ fn merge_command(args: &MergeArgs) -> CommandChain {
 
 #[derive(Debug)]
 struct MergeArgs {
-    dry_run: bool,
     no_rebase: bool,
-    from_step: usize,
     into: String,
     branches: Vec<String>,
 }
@@ -76,42 +74,21 @@ impl CommandArgs for MergeArgs {
         };
 
         let mut s = MergeArgs {
-            dry_run: false,
             no_rebase: false,
-            from_step: 0,
             into,
             branches,
         };
-
-        if args.is_present("dry-run") {
-            s.dry_run = true;
-        }
 
         if args.is_present("no-rebase") {
             s.no_rebase = true;
         }
 
-        args.value_of("from-step")
-            .and_then(|step| step.parse().ok())
-            .map(|step| s.from_step = step);
-
         Some(s)
-    }
-
-    fn dry_run(&self) -> bool {
-        self.dry_run
-    }
-
-    fn from_step(&self) -> usize {
-        self.from_step
     }
 
     fn rerun_command(&self) -> String {
         let mut rerun_command = String::new();
         rerun_command.push_str("merge");
-        if self.dry_run {
-            rerun_command.push_str(" --dry-run");
-        }
         if self.no_rebase {
             rerun_command.push_str(" --no-rebase");
         }

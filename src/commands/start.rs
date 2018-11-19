@@ -25,11 +25,9 @@ fn start_command(args: &StartArgs) -> CommandChain {
 #[derive(Debug)]
 struct StartArgs {
     branch: String,
-    dry_run: bool,
     prefix: bool,
     push: bool,
     base: String,
-    from_step: usize,
 }
 
 impl CommandArgs for StartArgs {
@@ -48,16 +46,10 @@ impl CommandArgs for StartArgs {
 
         let mut s = StartArgs {
             branch: branch,
-            dry_run: false,
             prefix: false,
             push: false,
             base: base,
-            from_step: 0,
         };
-
-        if args.is_present("dry-run") {
-            s.dry_run = true;
-        }
 
         if args.is_present("prefix") {
             s.prefix = true;
@@ -68,27 +60,12 @@ impl CommandArgs for StartArgs {
             s.push = true;
         }
 
-        args.value_of("from-step")
-            .and_then(|step| step.parse().ok())
-            .map(|step| s.from_step = step);
-
         Some(s)
-    }
-
-    fn dry_run(&self) -> bool {
-        self.dry_run
-    }
-
-    fn from_step(&self) -> usize {
-        self.from_step
     }
 
     fn rerun_command(&self) -> String {
         let mut rerun_command = String::new();
         rerun_command.push_str("start");
-        if self.dry_run {
-            rerun_command.push_str(" --dry-run");
-        }
         if self.prefix {
             rerun_command.push_str(" --prefix");
         }

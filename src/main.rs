@@ -1,4 +1,4 @@
-#![deny(dead_code, unused_imports, unused_variables)]
+#![deny(dead_code, unused_variables)]
 
 extern crate clap;
 extern crate colored;
@@ -7,7 +7,7 @@ mod command;
 mod string_ext;
 
 mod commands;
-use commands::{merge::*, ship_hotfix::*, start::*};
+use commands::{merge, on_staging, ship_hotfix, start};
 
 use clap::{App, Arg, SubCommand};
 
@@ -77,16 +77,24 @@ fn main() {
                 .about("Merge master into staging and develop and deploy")
                 .arg(&dry_run)
                 .arg(&from_step)
+        ).subcommand(
+            SubCommand::with_name("on-staging")
+                .about("Merge branch into staging and deploy to staging")
+                .arg(Arg::with_name("BRANCH").multiple(false).help("The branch that will be merged"))
+                .arg(&dry_run)
+                .arg(&from_step)
             );
 
     let matches = app.clone().get_matches();
 
     if let Some(matches) = matches.subcommand_matches("start") {
-        run_start(matches);
+        start::run_start(matches);
     } else if let Some(matches) = matches.subcommand_matches("merge") {
-        run_merge(matches);
+        merge::run_merge(matches);
     } else if let Some(matches) = matches.subcommand_matches("ship-hotfix") {
-        run_ship_hotfix(matches);
+        ship_hotfix::run_ship_hotfix(matches);
+    } else if let Some(matches) = matches.subcommand_matches("on-staging") {
+        on_staging::run_on_staging(matches);
     } else {
         app.print_help().expect("failed to print help");
         print!("\n");

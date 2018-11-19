@@ -30,7 +30,8 @@ impl CommandChain {
                     "-- Running step {}: {}",
                     step.to_string().green(),
                     cmd.as_string(),
-                ).green(),
+                )
+                .green(),
             );
             match runner.run_step(cmd) {
                 RunStepResult::Ok(output) => {
