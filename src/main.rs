@@ -1,5 +1,3 @@
-// #![deny(dead_code, unused_variables)]
-
 extern crate clap;
 extern crate colored;
 
@@ -7,25 +5,16 @@ mod command;
 mod string_ext;
 
 mod commands;
+
+mod command_chain;
+mod git;
+
+use clap::{App, Arg, SubCommand};
 use commands::{
     merge,
     on_remote::{self, Remote},
     ship_hotfix, start,
 };
-
-use clap::{App, Arg, SubCommand};
-
-mod git;
-
-mod command_chain;
-
-// fn main() {
-//     use std::io;
-//     use std::os::unix::io::FromRawFd;
-//     use std::process::{Command, Stdio};
-//     let out = Command::new("git").arg("checkout").arg("staging").status();
-//     println!("{:?}", out);
-// }
 
 fn main() {
     let dry_run = Arg::with_name("dry-run")
