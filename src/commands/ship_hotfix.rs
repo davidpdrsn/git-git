@@ -1,7 +1,7 @@
+use crate::command_chain::*;
+use crate::commands::*;
+use crate::git::Git;
 use clap::ArgMatches;
-use command_chain::*;
-use commands::*;
-use git::Git;
 
 pub fn run_ship_hotfix(args: &ArgMatches) {
     ShipHotfixArgs::from_args(&args)

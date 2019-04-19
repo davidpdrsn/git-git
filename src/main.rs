@@ -9,12 +9,12 @@ mod commands;
 mod command_chain;
 mod git;
 
-use clap::{App, Arg, SubCommand};
-use commands::{
+use crate::commands::{
     merge,
     on_remote::{self, Remote},
     ship_hotfix, start,
 };
+use clap::{App, Arg, SubCommand};
 
 fn main() {
     let dry_run = Arg::with_name("dry-run")

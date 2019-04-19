@@ -2,6 +2,7 @@
 name = "api-git"
 version = "0.2.1"
 authors = ["David Pedersen <david.pdrsn@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 colored = "1.6.1"

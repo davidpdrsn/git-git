@@ -1,7 +1,7 @@
+use crate::command_chain::*;
+use crate::commands::*;
+use crate::git::Git;
 use clap::ArgMatches;
-use command_chain::*;
-use commands::*;
-use git::Git;
 use std::string::ToString;
 
 pub fn run_merge(args: &ArgMatches) {
