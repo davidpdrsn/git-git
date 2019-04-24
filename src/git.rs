@@ -103,3 +103,32 @@ impl From<String> for Git {
         Git::from(s.as_ref())
     }
 }
+
+/// Returns if a branch with the given name exists.
+pub fn branch_exists(needle: &str) -> bool {
+    use git2::BranchType;
+    use git2::Repository;
+
+    let repo = Repository::open(".").expect("create repo");
+    let mut branches = repo
+        .branches(Some(BranchType::Local))
+        .expect("get branches");
+
+    branches.any(|branch| {
+        let (branch, _branch_type) = branch.expect("get branch");
+        let name = branch.name().expect("branch name");
+        name == Some(needle)
+    })
+}
+
+#[cfg(test)]
+mod test {
+    #[allow(unused_imports)]
+    use super::*;
+
+    #[test]
+    fn test_branch_exists() {
+        assert!(branch_exists("master"));
+        assert!(!branch_exists("doesnt-exist"));
+    }
+}

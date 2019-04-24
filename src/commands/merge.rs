@@ -1,6 +1,6 @@
 use crate::command_chain::*;
 use crate::commands::*;
-use crate::git::Git;
+use crate::git::{branch_exists, Git};
 use clap::ArgMatches;
 use std::string::ToString;
 
@@ -42,10 +42,12 @@ fn merge_command(args: &MergeArgs) -> CommandChain {
 
     if args.into == "master" {
         for branch in ["staging", "develop"].iter() {
-            c.add(Git::checkout(branch));
-            c.add(Git::pull());
-            c.add(Git::merge(&args.into));
-            c.add(Git::push());
+            if branch_exists(branch) {
+                c.add(Git::checkout(branch));
+                c.add(Git::pull());
+                c.add(Git::merge(&args.into));
+                c.add(Git::push());
+            }
         }
     }
 
