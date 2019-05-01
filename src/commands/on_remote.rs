@@ -12,6 +12,8 @@ pub fn run_on_remote(remote: Remote, args: &ArgMatches) {
 fn on_remote_command(args: &OnRemote) -> CommandChain {
     let mut c = CommandChain::new();
 
+    c.add(Git::push());
+
     match args.remote {
         Remote::Staging => c.add(Git::checkout("staging")),
         Remote::Develop => c.add(Git::checkout("develop")),
