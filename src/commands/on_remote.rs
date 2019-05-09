@@ -2,6 +2,7 @@ use crate::command_chain::*;
 use crate::commands::*;
 use crate::git::Git;
 use clap::ArgMatches;
+use std::fmt;
 
 pub fn run_on_remote(remote: Remote, args: &ArgMatches) {
     OnRemote::from_args(&args, remote)
@@ -14,10 +15,7 @@ fn on_remote_command(args: &OnRemote) -> CommandChain {
 
     c.add(Git::push());
 
-    match args.remote {
-        Remote::Staging => c.add(Git::checkout("staging")),
-        Remote::Develop => c.add(Git::checkout("develop")),
-    };
+    c.add(Git::checkout(&args.remote.to_string()));
 
     c.add(Git::pull());
 
@@ -38,6 +36,15 @@ fn on_remote_command(args: &OnRemote) -> CommandChain {
 pub enum Remote {
     Staging,
     Develop,
+}
+
+impl fmt::Display for Remote {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Remote::Staging => write!(f, "staging"),
+            Remote::Develop => write!(f, "develop"),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -61,7 +68,7 @@ impl OnRemote {
 impl CommandArgs for OnRemote {
     fn rerun_command(&self) -> String {
         let mut rerun_command = String::new();
-        rerun_command.push_str("on-staging");
+        rerun_command.push_str(&format!("on-{}", self.remote));
         rerun_command.push_str(&format!(" {}", self.branch));
         rerun_command
     }
