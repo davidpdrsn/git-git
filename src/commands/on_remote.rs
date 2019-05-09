@@ -1,6 +1,6 @@
 use crate::command_chain::*;
 use crate::commands::*;
-use crate::git::Git;
+use crate::git::{current_branch_with_confirm, ConfirmDefault, Git};
 use clap::ArgMatches;
 use std::fmt;
 
@@ -58,7 +58,15 @@ impl OnRemote {
         let branch = if let Some(branch) = args.value_of("BRANCH") {
             branch.to_string()
         } else {
-            return None;
+            current_branch_with_confirm(
+                |current_branch| {
+                    format!(
+                        "Do you want to merge {} to {} remote",
+                        current_branch, remote,
+                    )
+                },
+                ConfirmDefault::Yes,
+            )
         };
 
         Some(OnRemote { branch, remote })

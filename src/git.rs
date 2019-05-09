@@ -1,4 +1,5 @@
 use crate::command::Command;
+use git2::{BranchType, Repository};
 
 #[derive(Debug)]
 pub struct Git {
@@ -106,10 +107,8 @@ impl From<String> for Git {
 
 /// Returns if a branch with the given name exists.
 pub fn branch_exists(needle: &str) -> bool {
-    use git2::BranchType;
-    use git2::Repository;
+    let repo = open_repo();
 
-    let repo = Repository::open(".").expect("create repo");
     let mut branches = repo
         .branches(Some(BranchType::Local))
         .expect("get branches");
@@ -119,6 +118,88 @@ pub fn branch_exists(needle: &str) -> bool {
         let name = branch.name().expect("branch name");
         name == Some(needle)
     })
+}
+
+/// Get the name of the current branch
+pub fn current_branch() -> String {
+    let repo = open_repo();
+
+    let head = repo.head().expect("failed to get HEAD");
+
+    let branch = repo
+        .branches(Some(BranchType::Local))
+        .expect("get branches")
+        .map(|branch| branch.unwrap().0)
+        .find(|branch| branch.get() == &head)
+        .expect("failed to branch HEAD is pointing at");
+
+    branch
+        .name()
+        .expect("failed to get branch name")
+        .expect("branch name isn't valid UTF-8")
+        .to_string()
+}
+
+fn open_repo() -> Repository {
+    Repository::open(".").expect("failed to open repo in current directory")
+}
+
+pub fn current_branch_with_confirm(
+    question: impl Fn(&str) -> String,
+    default: ConfirmDefault,
+) -> String {
+    let current_branch = current_branch();
+
+    if confirm(&question(&current_branch), default) {
+        current_branch
+    } else {
+        std::process::exit(0)
+    }
+}
+
+fn confirm(question: &str, default: ConfirmDefault) -> bool {
+    use std::io::{self, Read, Write};
+
+    match default {
+        ConfirmDefault::Yes => {
+            print!("{}? Y/n ", question);
+        }
+        ConfirmDefault::No => {
+            print!("{}? y/N ", question);
+        }
+    }
+    io::stdout().flush().expect("failed to flush stdout");
+
+    let input = io::stdin()
+        .bytes()
+        .next()
+        .and_then(|result| result.ok())
+        .map(|byte| byte as char)
+        .expect("failed to read from stdin");
+
+    if input == '\n' {
+        match default {
+            ConfirmDefault::Yes => return true,
+            ConfirmDefault::No => return false,
+        }
+    } else {
+        if input == 'y' {
+            return true;
+        }
+
+        if input == 'n' {
+            return false;
+        }
+    }
+
+    eprintln!("Invalid answer {:?}", input);
+    std::process::exit(1)
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum ConfirmDefault {
+    Yes,
+    No,
 }
 
 #[cfg(test)]

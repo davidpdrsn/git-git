@@ -1,6 +1,6 @@
 use crate::command_chain::*;
 use crate::commands::*;
-use crate::git::{branch_exists, Git};
+use crate::git::{branch_exists, current_branch_with_confirm, ConfirmDefault, Git};
 use clap::ArgMatches;
 use std::string::ToString;
 
@@ -68,7 +68,15 @@ impl MergeArgs {
         let branches = if let Some(branches) = args.values_of("BRANCH") {
             branches.map(ToString::to_string).collect()
         } else {
-            return None;
+            vec![current_branch_with_confirm(
+                |current_branch| {
+                    format!(
+                        "Do you want to merge the current branch {}",
+                        current_branch
+                    )
+                },
+                ConfirmDefault::No,
+            )]
         };
 
         let into = if let Some(into) = args.value_of("into") {
