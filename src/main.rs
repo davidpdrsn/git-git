@@ -82,12 +82,22 @@ fn main() {
             SubCommand::with_name("on-staging")
                 .about("Merge branch into staging and deploy to staging")
                 .arg(Arg::with_name("BRANCH").multiple(false).help("The branch that will be merged"))
+                .arg(
+                    Arg::with_name("no-ship")
+                        .long("no-ship")
+                        .help("Don't push to heroku staging"),
+                )
                 .arg(&dry_run)
                 .arg(&from_step)
         ).subcommand(
             SubCommand::with_name("on-develop")
                 .about("Merge branch into develop and deploy to develop")
                 .arg(Arg::with_name("BRANCH").multiple(false).help("The branch that will be merged"))
+                .arg(
+                    Arg::with_name("no-ship")
+                        .long("no-ship")
+                        .help("Don't push to heroku development"),
+                )
                 .arg(&dry_run)
                 .arg(&from_step)
             );
