@@ -41,18 +41,30 @@ impl CommandChain {
                         format!("Step {} failed. Fix the problem and rerun with:", step).red(),
                     );
                     println!();
+
                     let path_to_self = "api-git";
-                    println!(
-                        "{}",
-                        format!("{} {} --from-step {}", path_to_self, rerun_command, step)
-                            .indent(2),
-                    );
+                    let retry_command =
+                        format!("{} {} --from-step {}", path_to_self, rerun_command, step);
+                    println!("{}", retry_command.indent(2));
+
+                    copy_to_clipboard(&retry_command);
+                    println!("Retry command has been copied to the clipboard");
+
                     break;
                 }
             }
             println!();
         }
     }
+}
+
+fn copy_to_clipboard(text: &str) {
+    use clipboard::{ClipboardContext, ClipboardProvider};
+
+    let mut cp = ClipboardContext::new().expect("failed to create clipboard");
+
+    cp.set_contents(text.to_string())
+        .expect("failed to copy to clipboard");
 }
 
 pub trait Step {
