@@ -70,10 +70,7 @@ impl MergeArgs {
         } else {
             vec![current_branch_with_confirm(
                 |current_branch| {
-                    format!(
-                        "Do you want to merge the current branch {}",
-                        current_branch
-                    )
+                    format!("Do you want to merge the current branch {}", current_branch)
                 },
                 ConfirmDefault::No,
             )]

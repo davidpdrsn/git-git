@@ -47,10 +47,10 @@ impl StartArgs {
         };
 
         let mut s = StartArgs {
-            branch: branch,
+            branch,
             prefix: false,
             push: false,
-            base: base,
+            base,
         };
 
         if args.is_present("prefix") {

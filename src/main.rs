@@ -116,7 +116,7 @@ fn main() {
         on_remote::run_on_remote(Remote::Develop, matches);
     } else {
         app.print_help().expect("failed to print help");
-        print!("\n");
+        println!();
         std::process::exit(1);
     }
 }

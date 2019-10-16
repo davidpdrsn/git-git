@@ -3,7 +3,7 @@ use crate::string_ext::*;
 use colored::*;
 
 pub struct CommandChain {
-    steps: Vec<Box<Step>>,
+    steps: Vec<Box<dyn Step>>,
 }
 
 impl CommandChain {
@@ -33,14 +33,14 @@ impl CommandChain {
                 )
                 .green(),
             );
-            match runner.run_step(cmd) {
+            match runner.run_step(&**cmd) {
                 RunStepResult::Ok => {}
                 RunStepResult::Err => {
                     println!(
                         "{}",
                         format!("Step {} failed. Fix the problem and rerun with:", step).red(),
                     );
-                    println!("");
+                    println!();
                     let path_to_self = "api-git";
                     println!(
                         "{}",
@@ -50,7 +50,7 @@ impl CommandChain {
                     break;
                 }
             }
-            println!("");
+            println!();
         }
     }
 }
@@ -92,7 +92,7 @@ pub enum StepRunner {
 }
 
 impl StepRunner {
-    fn run_step(&self, step: &Box<Step>) -> RunStepResult {
+    fn run_step(&self, step: &dyn Step) -> RunStepResult {
         match self {
             StepRunner::Dry => {
                 println!("Dry run:");

@@ -90,7 +90,7 @@ impl Command for Git {
 
 impl<'a> From<&'a str> for Git {
     fn from(s: &'a str) -> Git {
-        let args = s.split(" ").map(|s| s.into()).collect();
+        let args = s.split(' ').map(|s| s.into()).collect();
 
         Git {
             command: String::from("git"),
